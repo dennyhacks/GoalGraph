@@ -33,3 +33,6 @@ data/soccernet/
 *.tar.gz
 *.mp4
 *.pt
+
+# Scratch or external frontend prototypes
+goalgraph-__-workstation/
