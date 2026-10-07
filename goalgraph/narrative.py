@@ -623,6 +623,9 @@ def build_match_summary(
             })
 
         elif ev.type == "full_time":
+            # Premature full-time during mid-game or duplicate
+            if t_vid < duration_s * 0.75 or any(s.get("title") == "Final Whistle" for s in flowchart_steps):
+                continue
             icon = ""
             action_title = "Full-Time Final Whistle"
             if score_a > score_b:
@@ -681,6 +684,17 @@ def build_match_summary(
     else:
         winner_name = "Draw"
         outcome_text = f"The match ended in a {score_a} - {score_b} draw between {team_a.name} and {team_b.name}"
+
+    # Ensure exactly one terminal Final Whistle at the end of flowchart
+    if not any(s.get("title") == "Final Whistle" for s in flowchart_steps):
+        flowchart_steps.append({
+            "title": "Final Whistle",
+            "time": f"{fmt_time(duration_s)} (Clock 90:00)",
+            "badge": "",
+            "team": "Officials",
+            "detail": f"{outcome_text}!",
+            "icon": ""
+        })
 
     return MatchSummary(
         duration_s=duration_s,

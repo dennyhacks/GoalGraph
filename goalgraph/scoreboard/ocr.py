@@ -264,27 +264,33 @@ def detect_scoreboard_events(samples: list[dict], lag_prior: float = 1.2) -> lis
                         # Score confirmed unchanged
                         last_score_t = t
 
-        # Check for tags in raw text
+        # Check for tags in raw text with strict word boundaries
         raw_upper = s.get("raw", "").upper()
-        if "HT" in raw_upper or "HALF TIME" in raw_upper:
-            candidates.append(
-                Candidate(
-                    source="scoreboard",
-                    type="half_time",
-                    t=t,
-                    confidence=0.88,
-                    payload={"screen_t": t, "raw": raw_upper}
+        is_ht = bool(re.search(r"\b(HT|HALF[\s\-_]*TIME)\b", raw_upper))
+        is_ft = bool(re.search(r"\b(FT|FULL[\s\-_]*(TIME|TIHE))\b", raw_upper))
+        max_vid_t = max((item.get("t", 0.0) for item in samples), default=0.0)
+
+        if is_ht and not is_ft:
+            if max_vid_t == 0.0 or t <= max_vid_t * 0.70:
+                candidates.append(
+                    Candidate(
+                        source="scoreboard",
+                        type="half_time",
+                        t=t,
+                        confidence=0.88,
+                        payload={"screen_t": t, "raw": raw_upper}
+                    )
                 )
-            )
-        elif "FT" in raw_upper or "FULL TIME" in raw_upper:
-            candidates.append(
-                Candidate(
-                    source="scoreboard",
-                    type="full_time",
-                    t=t,
-                    confidence=0.90,
-                    payload={"screen_t": t, "raw": raw_upper}
+        elif is_ft:
+            if max_vid_t == 0.0 or t >= max_vid_t * 0.75:
+                candidates.append(
+                    Candidate(
+                        source="scoreboard",
+                        type="full_time",
+                        t=t,
+                        confidence=0.90,
+                        payload={"screen_t": t, "raw": raw_upper}
+                    )
                 )
-            )
 
     return candidates

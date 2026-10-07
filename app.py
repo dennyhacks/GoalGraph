@@ -1540,7 +1540,10 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-    flowchart_items = summary.flowchart_steps
+    # Ensure Final Whistle appears strictly once at the very end of the flowchart
+    non_fw_steps = [s for s in summary.flowchart_steps if s.get("title") != "Final Whistle"]
+    fw_steps = [s for s in summary.flowchart_steps if s.get("title") == "Final Whistle"]
+    flowchart_items = non_fw_steps + (fw_steps[-1:] if fw_steps else [])
     for idx, step in enumerate(flowchart_items):
         st.markdown(f"""
         <div class="flow-node">

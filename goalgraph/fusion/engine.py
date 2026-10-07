@@ -196,6 +196,17 @@ class FusionEngine:
 
         # Sort final events by live timestamp
         events.sort(key=lambda e: e.live_timestamp)
+
+        # Deduplicate full_time events: A soccer match has strictly at most ONE final whistle
+        ft_events = [e for e in events if e.type == "full_time"]
+        if len(ft_events) > 1:
+            last_ft = max(ft_events, key=lambda e: e.live_timestamp)
+            events = [e for e in events if e.type != "full_time" or e.event_id == last_ft.event_id]
+
+        # Re-index event IDs sequentially
+        for idx, ev in enumerate(events, 1):
+            ev.event_id = f"E{idx:03d}"
+
         return events
 
     def _triangulate_signals(self, candidates: list[Candidate]) -> tuple[float, float, float, float, float]:
