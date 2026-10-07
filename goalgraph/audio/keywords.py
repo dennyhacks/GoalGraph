@@ -239,7 +239,10 @@ def spot(sentences: list[dict], roster: dict | None = None) -> list[Candidate]:
 
 def _strong_override(typ: str, low: str) -> bool:
     if typ == "goal":
-        return bool(re.search(r"\bgoal\b|\bscores?\b|\bscored\b|\bequali[sz]es?\b|\b(are|is) level\b|\bburies\b|\bslotted away\b", low)) and \
+        # Never override if speculative phrases are present
+        if re.search(r"\bfind a goal\b|\bsearch of a goal\b|\blooking for a goal\b|\bneed a goal\b|\bchance of a goal\b", low):
+            return False
+        return bool(re.search(r"\bscores?\b|\bscored\b|\bequali[sz]es?\b|\b(are|is) level\b|\bburies\b|\bslotted away\b", low)) and \
             not re.search(r"\bon goal\b|\bat goal\b|\bgoal kick\b|\bgoals to\b", low)
     return False
 

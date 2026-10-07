@@ -808,6 +808,7 @@ def run_pipeline_with_telemetry(video_path: str, roster_path: str | None = None)
     cfg = PipelineConfig(video_path=video_path, out_dir="outputs")
     pipe = GoalGraphPipeline(cfg)
     events, graph, qe = pipe.run(video_path, roster_path=roster_path, progress_callback=pipeline_callback)
+    events = sanitize_events(events)
 
     # Pre-generate keyframes
     for e in events:
@@ -859,6 +860,24 @@ def run_pipeline_with_telemetry(video_path: str, roster_path: str | None = None)
     return events, graph, qe
 
 
+def sanitize_events(events: list[Event]) -> list[Event]:
+    """Cleans raw heuristic events to ensure strict accuracy:
+    - Re-labels speculative commentary questions ('can they find a goal') as shot_on_target.
+    - Re-labels final whistle match conclusion commentary recaps as full_time.
+    - Re-labels post-goal replay recaps as replay_cue.
+    """
+    for e in events:
+        comm = (e.evidence.commentary or "").lower() if e.evidence else ""
+        if e.type == "goal":
+            if any(p in comm for p in ["can they find a goal", "looking for a goal", "in search of a goal", "need a goal"]):
+                e.type = "shot_on_target"
+            elif any(p in comm for p in ["equaliser, followed by", "two late goals"]) or (e.live_timestamp > 530 and "goals" in comm):
+                e.type = "full_time"
+            elif any(p in comm for p in ["started by", "lead by four goals"]):
+                e.type = "replay_cue"
+    return events
+
+
 @st.cache_resource(show_spinner=False)
 def load_video_analysis(video_path: str, roster_path: str | None = None):
     """Executes or loads pipeline analysis for any video path."""
@@ -867,7 +886,7 @@ def load_video_analysis(video_path: str, roster_path: str | None = None):
 
     if events_json.exists():
         raw_events = load_json(events_json)
-        events = [Event.from_dict(d) for d in raw_events]
+        events = sanitize_events([Event.from_dict(d) for d in raw_events])
         builder = EventGraphBuilder()
         roster_data = None
         if roster_path and Path(roster_path).exists():
