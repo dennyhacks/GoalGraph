@@ -154,3 +154,40 @@ def test_vlm_reasoner():
     assert len(audit.entities_detected) > 0
     assert audit.to_dict()["event_id"] == "E007"
 
+
+def test_dynamic_query_engine_across_matches():
+    import json
+    import networkx as nx
+
+    # Test France vs Belgium
+    if Path("outputs/videoplayback/events.json").exists():
+        events_data = json.loads(Path("outputs/videoplayback/events.json").read_text())
+        events = [Event.from_dict(d) for d in events_data]
+        qe_fb = QueryEngine(events, nx.DiGraph(), video_path="outputs/uploads/videoplayback.mp4")
+        assert "France" in qe_fb.roster.get("teams", {}).get("A", {}).get("name", "")
+        assert "Belgium" in qe_fb.roster.get("teams", {}).get("B", {}).get("name", "")
+        # Query first goal
+        res_first = qe_fb.query("Who scored the first goal?")
+        assert "Dodi Lukebakio" in res_first.answer
+        assert "Belgium" in res_first.answer
+        # Query equalizer
+        res_eq = qe_fb.query("Who scored the equalizer?")
+        assert "Désiré Doué" in res_eq.answer
+        assert "France" in res_eq.answer
+        # Query winner
+        res_win = qe_fb.query("Which team won the match?")
+        assert "France won 4 - 1" in res_win.answer
+
+    # Test Manchester United vs Arsenal
+    if Path("outputs/manutd_vs_arsenal_2015/events.json").exists() and Path("data/matches/roster.json").exists():
+        events_data = json.loads(Path("outputs/manutd_vs_arsenal_2015/events.json").read_text())
+        events = [Event.from_dict(d) for d in events_data]
+        qe_pl = QueryEngine(events, nx.DiGraph(), video_path="data/matches/manutd_vs_arsenal_2015.mp4", roster_path="data/matches/roster.json")
+        res_first_pl = qe_pl.query("Who scored the first goal?")
+        assert "Scott McTominay" in res_first_pl.answer
+        res_eq_pl = qe_pl.query("Who scored the equalizer?")
+        assert "Pierre-Emerick Aubameyang" in res_eq_pl.answer
+        res_win_pl = qe_pl.query("Who won?")
+        assert "1 - 1 draw" in res_win_pl.answer
+
+

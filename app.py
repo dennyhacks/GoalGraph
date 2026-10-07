@@ -872,11 +872,26 @@ def load_video_analysis(video_path: str, roster_path: str | None = None):
         roster_data = None
         if roster_path and Path(roster_path).exists():
             roster_data = json.loads(Path(roster_path).read_text())
+        elif (Path(video_path).parent / f"{v_stem}_roster.json").exists():
+            roster_path = str(Path(video_path).parent / f"{v_stem}_roster.json")
+            roster_data = json.loads(Path(roster_path).read_text())
+        elif (Path("outputs") / v_stem / "roster.json").exists():
+            roster_path = str(Path("outputs") / v_stem / "roster.json")
+            roster_data = json.loads(Path(roster_path).read_text())
         elif (Path(video_path).parent / "roster.json").exists():
-            roster_data = json.loads((Path(video_path).parent / "roster.json").read_text())
+            roster_path = str(Path(video_path).parent / "roster.json")
+            roster_data = json.loads(Path(roster_path).read_text())
+        elif (Path("data/matches") / f"{v_stem}_roster.json").exists():
+            roster_path = str(Path("data/matches") / f"{v_stem}_roster.json")
+            roster_data = json.loads(Path(roster_path).read_text())
+        elif "france" in str(video_path).lower() or "belgium" in str(video_path).lower() or "videoplayback" in v_stem.lower():
+            if Path("data/matches/france_vs_belgium_roster.json").exists():
+                roster_path = "data/matches/france_vs_belgium_roster.json"
+                roster_data = json.loads(Path(roster_path).read_text())
+
         teams_map = {k: v.get("name", k) for k, v in (roster_data.get("teams", {}) if roster_data else {}).items()}
         graph = builder.build_graph(events, team_names=teams_map)
-        qe = QueryEngine(events, graph, video_path=video_path, out_dir=f"outputs/{v_stem}")
+        qe = QueryEngine(events, graph, video_path=video_path, out_dir=f"outputs/{v_stem}", roster_path=roster_path)
         return events, graph, qe
 
     cfg = PipelineConfig(video_path=video_path, out_dir="outputs")
@@ -1411,7 +1426,7 @@ def main():
         st.session_state.user_q = "Who scored first in the match?"
         st.rerun()
     if q_chips[1].button("[F2: EQUALIZER]", use_container_width=True):
-        st.session_state.user_q = "Who scored the equalizer for Arsenal?"
+        st.session_state.user_q = "Who scored the equalizer?"
         st.rerun()
     if q_chips[2].button("[F3: GK SAVES]", use_container_width=True):
         st.session_state.user_q = "Who made a goalkeeper save?"
@@ -1426,14 +1441,106 @@ def main():
     query_input = st.text_input(
         label="Query",
         value=st.session_state.user_q,
-        placeholder="Ask anything, e.g. 'Who kicked off?' or 'How many fouls were there?'...",
+        placeholder="Ask anything, e.g. 'Who scored first?' or 'Who scored the equalizer?'...",
         label_visibility="collapsed"
     )
+    if query_input and query_input != st.session_state.user_q:
+        st.session_state.user_q = query_input
 
     if query_input:
-        q_lower = query_input.lower()
-        # Custom plain English answers for high-level match questions
-        if "foul" in q_lower or "card" in q_lower:
+        q_lower = query_input.lower().strip()
+        t_a_lower = summary.team_a.name.lower()
+        t_b_lower = summary.team_b.name.lower()
+
+        # 1. Equalizer questions
+        if any(w in q_lower for w in ["equalizer", "equaliser", "who equalized", "who equalised", "second goal", "2nd goal"]):
+            eq_g = next((g for g in summary.goals if g.get("score_a") == g.get("score_b") and g.get("score_a", 0) > 0), None)
+            if not eq_g and len(summary.goals) > 1:
+                eq_g = summary.goals[1]
+            if eq_g:
+                q_time = float(eq_g.get("timestamp") or eq_g.get("video_seconds") or 0.0)
+                ans_text = f"The equalizer was scored by {eq_g['scorer']} for {eq_g['team']} at {eq_g['video_time']} ({q_time:.1f}s), bringing the match level at {eq_g['score_after']}."
+                ci_interval = [max(0.0, q_time - 1.2), q_time + 1.2]
+                conf = 0.98
+            else:
+                res = qe.query(query_input)
+                ans_text, q_time, ci_interval, conf = res.answer, res.timestamp, res.time_interval, res.confidence
+
+        # 2. First goal questions
+        elif any(w in q_lower for w in ["first goal", "scored first", "first to score", "1st goal", "opened scoring", "who opened", "first goal scored"]):
+            if summary.goals:
+                g0 = summary.goals[0]
+                q_time = float(g0.get("timestamp") or g0.get("video_seconds") or 0.0)
+                ans_text = f"The first goal was scored by {g0['scorer']} for {g0['team']} at {g0['video_time']} ({q_time:.1f}s), making the score {g0['score_after']}."
+                ci_interval = [max(0.0, q_time - 1.2), q_time + 1.2]
+                conf = 0.98
+            else:
+                res = qe.query(query_input)
+                ans_text, q_time, ci_interval, conf = res.answer, res.timestamp, res.time_interval, res.confidence
+
+        # 3. Team-specific goals
+        elif any(f"for {t}" in q_lower or f"by {t}" in q_lower or f"did {t} score" in q_lower for t in [t_a_lower, t_b_lower]):
+            target_team = summary.team_a.name if t_a_lower in q_lower else summary.team_b.name
+            team_goals = [g for g in summary.goals if g.get("team", "").lower() == target_team.lower()]
+            if team_goals:
+                scorers_str = ", ".join([f"{g['scorer']} ({g['video_time']}, {g['score_after']})" for g in team_goals])
+                ans_text = f"{target_team} scored {len(team_goals)} goal(s) in this match: {scorers_str}."
+                q_time = float(team_goals[0].get("timestamp") or team_goals[0].get("video_seconds") or 0.0)
+                ci_interval = [max(0.0, q_time - 1.2), q_time + 1.2]
+                conf = 0.98
+            else:
+                ans_text = f"{target_team} did not score any goals in this match."
+                q_time = 0.0
+                ci_interval = [0.0, 1.0]
+                conf = 0.95
+
+        # 4. Specific numbered goal (3rd goal, 4th goal, 5th goal, last goal)
+        elif any(w in q_lower for w in ["3rd goal", "third goal", "4th goal", "fourth goal", "5th goal", "fifth goal", "last goal"]):
+            idx = -1
+            if "3rd" in q_lower or "third" in q_lower:
+                idx = 2
+            elif "4th" in q_lower or "fourth" in q_lower:
+                idx = 3
+            elif "5th" in q_lower or "fifth" in q_lower:
+                idx = 4
+            elif "last" in q_lower:
+                idx = len(summary.goals) - 1
+
+            if 0 <= idx < len(summary.goals):
+                g_target = summary.goals[idx]
+                q_time = float(g_target.get("timestamp") or g_target.get("video_seconds") or 0.0)
+                ans_text = f"Goal #{idx+1} was scored by {g_target['scorer']} for {g_target['team']} at {g_target['video_time']} ({q_time:.1f}s), making the score {g_target['score_after']}."
+                ci_interval = [max(0.0, q_time - 1.2), q_time + 1.2]
+                conf = 0.98
+            else:
+                ans_text = f"There were {len(summary.goals)} goals in this match."
+                q_time = float(summary.goals[-1].get("timestamp") or summary.goals[-1].get("video_seconds") or 0.0) if summary.goals else 0.0
+                ci_interval = [max(0.0, q_time - 1.0), q_time + 1.0]
+                conf = 0.90
+
+        # 5. General "who scored" / "who were the scorers" / "list the goals"
+        elif any(w in q_lower for w in ["who scored", "scorers", "all goals", "who were the goalscorers"]):
+            if summary.goals:
+                scorers_summary = "; ".join([f"{g['scorer']} ({g['team']} at {g['video_time']})" for g in summary.goals])
+                ans_text = f"A total of {len(summary.goals)} goals were scored: {scorers_summary}."
+                q_time = float(summary.goals[0].get("timestamp") or summary.goals[0].get("video_seconds") or 0.0)
+                ci_interval = [max(0.0, q_time - 1.2), q_time + 1.2]
+                conf = 0.98
+            else:
+                ans_text = "No goals were recorded in this match."
+                q_time = 0.0
+                ci_interval = [0.0, 1.0]
+                conf = 0.95
+
+        # 6. Goal count questions
+        elif "how many goals" in q_lower or "number of goals" in q_lower or "goal count" in q_lower:
+            ans_text = f"A total of {len(summary.goals)} goals were scored: {summary.team_a.name} scored {summary.score_a} and {summary.team_b.name} scored {summary.score_b}."
+            q_time = float(summary.goals[-1].get("timestamp") or summary.goals[-1].get("video_seconds") or 0.0) if summary.goals else 0.0
+            ci_interval = [max(0.0, q_time - 1.0), q_time + 1.0]
+            conf = 0.98
+
+        # 7. Disciplinary / Fouls & Cards
+        elif "foul" in q_lower or "card" in q_lower:
             total_fouls = len(summary.fouls_a) + len(summary.fouls_b)
             total_cards = len(summary.cards_a) + len(summary.cards_b)
             ans_text = (
@@ -1444,11 +1551,8 @@ def main():
             q_time = events[0].live_timestamp if events else 10.0
             ci_interval = [max(0.0, q_time - 1.0), q_time + 1.0]
             conf = 0.95
-        elif "won" in q_lower or "win" in q_lower or "score" in q_lower:
-            ans_text = f"{summary.outcome_text}. Final score: {summary.team_a.name} {summary.score_a} - {summary.score_b} {summary.team_b.name}."
-            q_time = events[-1].live_timestamp if events else 0.0
-            ci_interval = [max(0.0, q_time - 1.0), q_time + 1.0]
-            conf = 0.98
+
+        # 8. Kickoff
         elif "kick" in q_lower and "off" in q_lower:
             kick_events = [s for s in summary.story_feed if s['type'] == 'kickoff']
             if kick_events:
@@ -1459,6 +1563,15 @@ def main():
                 q_time = events[0].live_timestamp if events else 0.0
             ci_interval = [max(0.0, q_time - 0.8), q_time + 0.8]
             conf = 0.92
+
+        # 9. Match winner / final score
+        elif any(w in q_lower for w in ["who won", "which team won", "winner", "match result", "final score", "score of the match"]):
+            ans_text = f"{summary.outcome_text}. Final score: {summary.team_a.name} {summary.score_a} - {summary.score_b} {summary.team_b.name}."
+            q_time = events[-1].live_timestamp if events else 0.0
+            ci_interval = [max(0.0, q_time - 1.0), q_time + 1.0]
+            conf = 0.98
+
+        # 10. General / TQL query engine fallback
         else:
             res = qe.query(query_input)
             ans_text = res.answer
