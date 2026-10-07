@@ -52,6 +52,23 @@ class MatchSummary:
     story_feed: list[dict[str, Any]]
     flowchart_steps: list[dict[str, Any]]
 
+    def get_score_at_timestamp(self, timestamp_s: float) -> tuple[int, int, str]:
+        """Returns (score_a, score_b, lead_description) at a given video timestamp in seconds."""
+        curr_a, curr_b = 0, 0
+        lead_desc = "MATCH TIED (0 - 0)"
+        for g in self.goals:
+            g_sec = g.get("timestamp") or g.get("video_seconds", 0.0)
+            if timestamp_s >= g_sec:
+                curr_a = g.get("score_a", curr_a)
+                curr_b = g.get("score_b", curr_b)
+                if curr_a > curr_b:
+                    lead_desc = f"{self.team_a.name.upper()} LEAD ({curr_a} - {curr_b})"
+                elif curr_b > curr_a:
+                    lead_desc = f"{self.team_b.name.upper()} LEAD ({curr_a} - {curr_b})"
+                else:
+                    lead_desc = f"LEVEL AT {curr_a} - {curr_b}"
+        return curr_a, curr_b, lead_desc
+
 
 def mmss_to_seconds(clock_str: str) -> float:
     try:
@@ -489,12 +506,16 @@ def build_match_summary(
 
             goals.append({
                 "video_time": v_str,
+                "timestamp": round(t_vid, 2),
+                "video_seconds": round(t_vid, 2),
                 "match_clock": m_clock,
                 "half": half_str,
                 "scorer": scorer_name,
                 "team": scoring_team.name,
                 "badge": "",
                 "score_after": f"{score_a} - {score_b}",
+                "score_a": score_a,
+                "score_b": score_b,
                 "description": simple_text
             })
 

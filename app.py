@@ -1079,12 +1079,81 @@ def main():
     summary: MatchSummary = build_match_summary(events, roster_data, duration_s=v_duration)
 
     # -----------------------------------------------------------------------
-    # Step 2: Match Winner & Score Banner
+    # Step 2: Temporal Video Scrubber & Progressive Scoreboard Controller
     # -----------------------------------------------------------------------
+    if st.session_state.get("last_video_path") != active_video_path:
+        st.session_state["last_video_path"] = active_video_path
+        st.session_state["playhead_sec"] = 0.0
+    elif "playhead_sec" not in st.session_state:
+        st.session_state["playhead_sec"] = 0.0
+
+    st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#ff7a00;font-weight:700;margin-bottom:0.4rem;letter-spacing:0.5px;">[TEMPORAL PLAYHEAD // INTERACTIVE VIDEO SCRUBBER & SCORE PROGRESSION]</div>', unsafe_allow_html=True)
+
+    # Goal Milestones & Jump Buttons Rack
+    jump_items = [("00:00 KICK-OFF", 0.0, "0-0")]
+    for g in summary.goals:
+        g_s = float(g.get("timestamp") or g.get("video_seconds", 0.0))
+        jump_items.append((f"{g['video_time']} {g['score_after']}", g_s, g['score_after']))
+    jump_items.append((f"{fmt_time(v_duration)} FULL TIME", float(v_duration), f"{summary.score_a}-{summary.score_b}"))
+
+    # Render quick-jump button rack
+    j_cols = st.columns(len(jump_items))
+    for idx, (label, target_t, sc_text) in enumerate(jump_items):
+        with j_cols[idx]:
+            is_active = abs(st.session_state["playhead_sec"] - target_t) < 3.0
+            btn_type = "primary" if is_active else "secondary"
+            if st.button(f"[{label}]", key=f"jump_{idx}", use_container_width=True, type=btn_type):
+                st.session_state["playhead_sec"] = target_t
+                st.rerun()
+
+    # Playhead slider
+    scrub_col1, scrub_col2 = st.columns([4, 1])
+    with scrub_col1:
+        current_slider_val = min(float(st.session_state["playhead_sec"]), float(v_duration))
+        scrubbed_t = st.slider(
+            "Video Playhead Time (Scrub to view on-screen scoreboard at that minute):",
+            min_value=0.0,
+            max_value=float(v_duration),
+            value=float(current_slider_val),
+            step=1.0,
+            format="%.0fs",
+            label_visibility="collapsed"
+        )
+        if abs(scrubbed_t - current_slider_val) >= 1.0:
+            st.session_state["playhead_sec"] = scrubbed_t
+
+    with scrub_col2:
+        st.markdown(f"""
+        <div style="background:#151619;border:1px solid #2b2d33;border-radius:4px;padding:0.4rem 0.6rem;text-align:center;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">
+            <div style="color:#8b909a;font-size:0.65rem;">PLAYHEAD TIME</div>
+            <div style="color:#00e5ff;font-weight:700;">{fmt_time(st.session_state["playhead_sec"])} / {fmt_time(v_duration)}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Compute progressive score at active playhead timestamp
+    active_playhead = float(st.session_state["playhead_sec"])
+    cur_score_a, cur_score_b, lead_desc = summary.get_score_at_timestamp(active_playhead)
+
+    # Detailed contextual narrative for this specific playhead timestamp
+    first_goal_t = float(summary.goals[0].get("timestamp", 243.0)) if summary.goals else 243.0
+    if active_playhead < first_goal_t:
+        playhead_narrative = f"Initial 0 - 0 deadlock prior to first goal. {summary.team_a.name} ({summary.team_a.jersey_label}) vs {summary.team_b.name} ({summary.team_b.jersey_label})."
+    else:
+        last_g = None
+        for g in summary.goals:
+            g_sec = float(g.get("timestamp") or g.get("video_seconds", 0.0))
+            if active_playhead >= g_sec:
+                last_g = g
+        if last_g:
+            playhead_narrative = f"At {fmt_time(active_playhead)} in video ({last_g['match_clock']} in {last_g['half']}): Current score is {summary.team_a.name} {cur_score_a} - {cur_score_b} {summary.team_b.name} following goal by {last_g['scorer']} ({last_g['team']})."
+        else:
+            playhead_narrative = f"At {fmt_time(active_playhead)}: Current score is {cur_score_a} - {cur_score_b}."
+
+    # Dynamic Scoreboard Dock
     st.markdown(f"""
     <div class="score-dock">
         <div class="status-tag">
-            [OUTCOME: {summary.outcome_text.upper()}]
+            [PLAYHEAD AT {fmt_time(active_playhead)} // {lead_desc}] • [PROGRESSIVE SCORE: {cur_score_a} - {cur_score_b}] • [FINAL FULL TIME: {summary.score_a} - {summary.score_b} FT]
         </div>
         <div class="score-row">
             <div class="team-block" style="text-align: left;">
@@ -1092,17 +1161,25 @@ def main():
                 <div class="team-kit-tag">[KIT: {summary.team_a.jersey_label.upper()} | COLOR: {summary.team_a.color_hex}]</div>
             </div>
             <div class="score-center">
-                <div class="score-number">{summary.score_a}</div>
+                <div class="score-number">{cur_score_a}</div>
                 <div class="score-dash">:</div>
-                <div class="score-number">{summary.score_b}</div>
+                <div class="score-number">{cur_score_b}</div>
             </div>
             <div class="team-block" style="text-align: right;">
                 <div class="team-title" style="justify-content: flex-end;">{summary.team_b.name}</div>
                 <div class="team-kit-tag">[KIT: {summary.team_b.jersey_label.upper()} | COLOR: {summary.team_b.color_hex}]</div>
             </div>
         </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#8b909a;margin-top:8px;padding-top:8px;border-top:1px solid #23252b;">
+            <span style="color:#ff7a00;font-weight:700;">[TIMELINE CONTEXT]:</span> {playhead_narrative}
+        </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # Synced Video Preview Expander
+    with st.expander(f"[SYNCHRONIZED VIDEO VIEWPORT // JUMPED TO {fmt_time(active_playhead)}]", expanded=False):
+        st.video(active_video_path, start_time=int(active_playhead))
+        st.caption(f"[VIDEO VIEWPORT: PLAYING FROM {fmt_time(active_playhead)} TO VERIFY BROADCAST SCOREBOARD ON SCREEN]")
 
     # -----------------------------------------------------------------------
     # Step 3: Team Breakdown & Foul Comparison
