@@ -1068,7 +1068,19 @@ def plot_timeline_chart(events: list[Event], duration: float = 196.0):
 
 
 def plot_causal_graph(graph: nx.DiGraph):
-    pos = nx.spring_layout(graph, k=1.1, seed=42)
+    """Renders an intuitive, chronological Left-to-Right Causal Event Chain (DAG)."""
+    event_nodes = [(n, d) for n, d in graph.nodes(data=True) if d.get("node_type") == "event"]
+    event_nodes.sort(key=lambda item: item[1].get("live_timestamp", 0.0))
+    if not event_nodes:
+        return go.Figure()
+
+    pos = {}
+    for idx, (node, data) in enumerate(event_nodes):
+        t = data.get("live_timestamp", float(idx * 50))
+        team = data.get("team")
+        y = 1.0 if team == "A" else (-1.0 if team == "B" else 0.0)
+        pos[node] = (t, y)
+
     edge_x, edge_y = [], []
     causal_edge_x, causal_edge_y = [], []
 
@@ -1085,7 +1097,7 @@ def plot_causal_graph(graph: nx.DiGraph):
 
     edge_trace = go.Scatter(
         x=edge_x, y=edge_y,
-        line=dict(width=1, color="rgba(255, 255, 255, 0.1)"),
+        line=dict(width=1, color="rgba(255, 255, 255, 0.15)"),
         hoverinfo='none',
         mode='lines'
     )
@@ -1097,33 +1109,27 @@ def plot_causal_graph(graph: nx.DiGraph):
         name="[CAUSAL: LEADS_TO]"
     )
 
-    node_x, node_y, node_hover, node_color, node_size = [], [], [], [], []
-    for node, data in graph.nodes(data=True):
-        if node in pos:
-            x, y = pos[node]
-            node_x.append(x)
-            node_y.append(y)
-            ntype = data.get("node_type", "event")
-            if ntype == "team":
-                node_color.append("#b388ff")
-                node_size.append(14)
-                node_hover.append(f"[TEAM: {data.get('name')}]")
-            elif ntype == "player":
-                node_color.append("#00e5ff")
-                node_size.append(11)
-                node_hover.append(f"[PLAYER: {data.get('player_id')}]")
-            else:
-                etype = data.get("event_type", "event")
-                node_color.append("#10b981" if etype == "goal" else ("#ffb300" if "card" in etype else "#ff3b30"))
-                node_size.append(9)
-                node_hover.append(f"[{etype.upper()}] ({node}) @ {data.get('live_timestamp')}s")
+    node_x, node_y, node_hover, node_color, node_text = [], [], [], [], []
+    for node, data in event_nodes:
+        x, y = pos[node]
+        node_x.append(x)
+        node_y.append(y)
+        etype = data.get("event_type", "event").replace("_", " ").upper()
+        ts = data.get("live_timestamp", 0.0)
+        col = "#10b981" if "GOAL" in etype else ("#00e5ff" if "SHOT" in etype or "KICKOFF" in etype else ("#ff3b30" if "FOUL" in etype or "CARD" in etype else "#b388ff"))
+        node_color.append(col)
+        node_text.append(f"{etype}<br>{fmt_time(ts)}")
+        node_hover.append(f"[{etype}] ({node}) at {ts:.1f}s ({fmt_time(ts)})")
 
     node_trace = go.Scatter(
         x=node_x, y=node_y,
-        mode='markers',
+        mode='markers+text',
+        text=node_text,
+        textposition="top center",
+        textfont=dict(family="JetBrains Mono, monospace", size=8, color="#d1d4dc"),
         hoverinfo='text',
         hovertext=node_hover,
-        marker=dict(size=node_size, color=node_color, line=dict(width=1, color="#14161d"))
+        marker=dict(size=12, color=node_color, line=dict(width=2, color="#14161d"))
     )
 
     fig = go.Figure(data=[edge_trace, causal_edge_trace, node_trace])
@@ -1131,10 +1137,20 @@ def plot_causal_graph(graph: nx.DiGraph):
         template="plotly_dark",
         showlegend=False,
         hovermode='closest',
-        height=380,
-        margin=dict(b=10, l=10, r=10, t=10),
-        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        height=260,
+        margin=dict(b=20, l=20, r=20, t=25),
+        xaxis=dict(
+            title=dict(text="[TIMELINE (SECONDS)]", font=dict(family="JetBrains Mono, monospace", size=9, color="#8b91a0")),
+            showgrid=True,
+            gridcolor="rgba(255, 255, 255, 0.05)",
+            tickfont=dict(family="JetBrains Mono, monospace", size=9, color="#8b91a0")
+        ),
+        yaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showticklabels=False,
+            range=[-2.2, 2.2]
+        ),
         plot_bgcolor="#14161d",
         paper_bgcolor="#14161d"
     )
@@ -1775,8 +1791,9 @@ def main():
     # -----------------------------------------------------------------------
     st.markdown('<div style="border-top: 1px solid rgba(255,255,255,0.06); margin-top: 1.5rem; margin-bottom: 0.75rem;"></div>', unsafe_allow_html=True)
 
-    # Render Interactive Plotly NetworkX DiGraph
-    st.plotly_chart(plot_causal_graph(graph), width="stretch")
+    # Optional Interactive Plotly NetworkX DiGraph inside collapsed expander
+    with st.expander("[CAUSAL TOPOLOGY GRAPH // NETWORKX DiGRAPH (OPTIONAL)]", expanded=False):
+        st.plotly_chart(plot_causal_graph(graph), width="stretch")
 
     # Ensure Final Whistle appears strictly once at the very end of the flowchart
     non_fw_steps = [s for s in summary.flowchart_steps if s.get("title") != "Final Whistle"]
