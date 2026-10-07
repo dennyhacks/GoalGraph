@@ -1241,7 +1241,6 @@ def main():
     elif "playhead_sec" not in st.session_state:
         st.session_state["playhead_sec"] = 0.0
 
-    st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#ff5a36;font-weight:700;margin-bottom:0.4rem;letter-spacing:0.5px;">[TEMPORAL PLAYHEAD // INTERACTIVE VIDEO SCRUBBER & SCORE PROGRESSION]</div>', unsafe_allow_html=True)
 
     # Goal Milestones & Jump Buttons Rack (Styled matching DashboardOverview.tsx milestone chips)
     jump_items = [("00:00 KICK-OFF (0-0)", 0.0, "0-0")]
@@ -1351,37 +1350,8 @@ def main():
         st.caption(f"[VIDEO VIEWPORT: PLAYING FROM {fmt_time(active_playhead)} TO VERIFY BROADCAST SCOREBOARD ON SCREEN]")
 
     # -----------------------------------------------------------------------
-    # Hero Row 4-Metric Grid (Matching DashboardOverview.tsx from reference)
-    # -----------------------------------------------------------------------
-    st.markdown(f"""
-    <div class="metric-hud-grid">
-        <div class="metric-hud-card">
-            <div class="metric-hud-label">[MATCH GOALS]</div>
-            <div class="metric-hud-val">{summary.score_a + summary.score_b}</div>
-            <div class="metric-hud-sub">{summary.team_a.code} ({summary.score_a}) - {summary.team_b.code} ({summary.score_b})</div>
-        </div>
-        <div class="metric-hud-card">
-            <div class="metric-hud-label">[TRACKED ENTITIES]</div>
-            <div class="metric-hud-val" style="color:#00e5ff;">22 PLAYERS</div>
-            <div class="metric-hud-sub">YOLOv8x + ByteTrack (99.8% continuity)</div>
-        </div>
-        <div class="metric-hud-card">
-            <div class="metric-hud-label">[95% CI SPREAD]</div>
-            <div class="metric-hud-val" style="color:#10b981;">±0.36s MAE</div>
-            <div class="metric-hud-sub">Inverse-Variance Multi-Modal Triangulation</div>
-        </div>
-        <div class="metric-hud-card">
-            <div class="metric-hud-label">[SENSOR CHANNELS]</div>
-            <div class="metric-hud-val" style="color:#ffb300;">5/5 ACTIVE</div>
-            <div class="metric-hud-sub">Whisper, OCR, YOLO, Flow, Graph</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # -----------------------------------------------------------------------
     # Step 3: Team Breakdown & Foul Comparison
     # -----------------------------------------------------------------------
-    st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#ff5a36;font-weight:700;margin-bottom:0.5rem;letter-spacing:0.5px;">[DISCIPLINARY TELEMETRY & MATCH METRICS]</div>', unsafe_allow_html=True)
 
     card_col1, card_col2 = st.columns(2)
     with card_col1:
@@ -1432,7 +1402,6 @@ def main():
     # Step 4: Interactive Query Prompt & Evidence Inspector
     # -----------------------------------------------------------------------
     st.markdown('<div style="height:10px;"></div>', unsafe_allow_html=True)
-    st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#00e5ff;font-weight:700;margin-bottom:0.5rem;letter-spacing:0.5px;">[COMMAND TERMINAL // NATURAL LANGUAGE & TQL QUERY ENGINE]</div>', unsafe_allow_html=True)
 
     if "user_q" not in st.session_state:
         st.session_state.user_q = "Who scored the first goal?"
@@ -1502,21 +1471,14 @@ def main():
             ci_spread = (ci_interval[1] - ci_interval[0]) / 2.0
             st.markdown(f"""
             <div class="terminal-card">
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#ff5a36;font-weight:700;margin-bottom:6px;letter-spacing:0.5px;">
-                    [REASONING ENGINE // QUERY INFERENCE RESULT]
-                </div>
                 <div class="terminal-answer">
                     {ans_text}
                 </div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
                     <span class="badge-video">[VIDEO TIME: {fmt_time(q_time or 0)} ({q_time or 0:.2f}s)]</span>
                     <span class="badge-clock">[95% CI: +-{ci_spread:.2f}s ({ci_interval[0]:.2f}s - {ci_interval[1]:.2f}s)]</span>
                     <span class="badge-ci">[AI CERTAINTY: {conf:.0%}]</span>
                     <span class="badge-vlm">[CONSENSUS: 4 AI MODELS]</span>
-                </div>
-                <div style="font-size:0.74rem;color:#8b91a0;line-height:1.45;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;">
-                    <span style="font-family:'JetBrains Mono',monospace;color:#ff5a36;font-weight:600;">[GROUNDING NOTE]</span>
-                    Cross-validated across 4 multi-modal model subsystems: Audio Whisper, YOLOv8 Vision, Scoreboard OCR, and Temporal Replay Filter. A score of 80%+ indicates multi-sensor agreement on live match events.
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1567,29 +1529,7 @@ def main():
                 )
                 st.plotly_chart(fig_radar, width="stretch")
 
-        # Computer Vision & OpenCV Grounding Audit
-        vlm_audit = generate_vlm_audit(
-            event_id=ev_id,
-            event_type=ev_type,
-            timestamp=q_time or 0.0,
-            player_name=ev_player,
-            team_name=summary.team_a.name,
-            opposing_team=summary.team_b.name
-        )
-        st.markdown(f"""
-        <div class="vlm-box">
-            <div class="vlm-title">[OPENCV + PRE-TRAINED YOLOV8 COMPUTER VISION AUDIT]</div>
-            <div class="vlm-desc">{vlm_audit.visual_action_description}</div>
-            <div class="telemetry-tag-rack">
-                <span class="telemetry-chip">[CV ENGINE: OPENCV + YOLOV8 PRE-TRAINED]</span>
-                <span class="telemetry-chip">[OPTICAL FLOW & HSV: ACTIVE (CONF: {conf:.0%})]</span>
-                <span class="telemetry-chip">[SPATIAL REID: {vlm_audit.reid_tracklet_id}]</span>
-                <span class="telemetry-chip">[SCOREBOARD OCR: {vlm_audit.scoreboard_validation}]</span>
-                <span class="telemetry-chip">[BROADCAST ANGLE: {vlm_audit.broadcast_angle_classification}]</span>
-                <span class="telemetry-chip" style="color:#10b981;border-color:rgba(16,185,129,0.4);">[GROUNDING: OPENCV + YOLO VERIFIED]</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+
 
     # -----------------------------------------------------------------------
     # Step 5: Chronological Play-by-Play Narrative Feed (Dope Sheet Stream)
@@ -1702,17 +1642,7 @@ def main():
     # -----------------------------------------------------------------------
     # Step 6: Step-by-Step Match Story Flowchart & Causal Graph Workbench
     # -----------------------------------------------------------------------
-    st.markdown('<div style="height:20px;"></div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.25rem;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#00e5ff;font-weight:700;margin-bottom:0.4rem;letter-spacing:0.5px;">
-            [CAUSAL GRAPH WORKBENCH // NETWORKX EVENT DEPENDENCY TOPOLOGY]
-        </div>
-        <div style="font-family:'Inter',sans-serif;font-size:0.78rem;color:#8b91a0;margin-bottom:1rem;">
-            Directed causal sequence showing temporal dependency propagation from kickoff to full-time.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div style="border-top: 1px solid rgba(255,255,255,0.06); margin-top: 1.5rem; margin-bottom: 0.75rem;"></div>', unsafe_allow_html=True)
 
     # Render Interactive Plotly NetworkX DiGraph
     st.plotly_chart(plot_causal_graph(graph), width="stretch")
