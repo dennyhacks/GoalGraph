@@ -1418,37 +1418,36 @@ def main():
     # -----------------------------------------------------------------------
     st.markdown('<div style="height:10px;"></div>', unsafe_allow_html=True)
 
-    if "user_q" not in st.session_state:
-        st.session_state.user_q = "Who scored the first goal?"
+    if "query_search_box" not in st.session_state:
+        st.session_state.query_search_box = "Who scored first in the match?"
 
     q_chips = st.columns(5)
     if q_chips[0].button("[F1: FIRST GOAL]", use_container_width=True):
-        st.session_state.user_q = "Who scored first in the match?"
+        st.session_state.query_search_box = "Who scored first in the match?"
         st.rerun()
     if q_chips[1].button("[F2: EQUALIZER]", use_container_width=True):
-        st.session_state.user_q = "Who scored the equalizer?"
+        st.session_state.query_search_box = "Who scored the equalizer?"
         st.rerun()
     if q_chips[2].button("[F3: GK SAVES]", use_container_width=True):
-        st.session_state.user_q = "Who made a goalkeeper save?"
+        st.session_state.query_search_box = "Who made a goalkeeper save?"
         st.rerun()
     if q_chips[3].button("[F4: MATCH RESULT]", use_container_width=True):
-        st.session_state.user_q = "Which team won the match and what was the score?"
+        st.session_state.query_search_box = "Which team won the match and what was the score?"
         st.rerun()
     if q_chips[4].button("[F5: CORNER TO GOAL]", use_container_width=True):
-        st.session_state.user_q = "Did the corner lead to a goal within 10 seconds?"
+        st.session_state.query_search_box = "Did the corner lead to a goal within 10 seconds?"
         st.rerun()
 
     query_input = st.text_input(
         label="Query",
-        value=st.session_state.user_q,
+        key="query_search_box",
         placeholder="Ask anything, e.g. 'Who scored first?' or 'Who scored the equalizer?'...",
         label_visibility="collapsed"
     )
-    if query_input and query_input != st.session_state.user_q:
-        st.session_state.user_q = query_input
+    active_q = query_input or st.session_state.query_search_box
 
-    if query_input:
-        q_lower = query_input.lower().strip()
+    if active_q:
+        q_lower = active_q.lower().strip()
         t_a_lower = summary.team_a.name.lower()
         t_b_lower = summary.team_b.name.lower()
 
@@ -1463,7 +1462,7 @@ def main():
                 ci_interval = [max(0.0, q_time - 1.2), q_time + 1.2]
                 conf = 0.98
             else:
-                res = qe.query(query_input)
+                res = qe.query(active_q)
                 ans_text, q_time, ci_interval, conf = res.answer, res.timestamp, res.time_interval, res.confidence
 
         # 2. First goal questions
@@ -1475,7 +1474,7 @@ def main():
                 ci_interval = [max(0.0, q_time - 1.2), q_time + 1.2]
                 conf = 0.98
             else:
-                res = qe.query(query_input)
+                res = qe.query(active_q)
                 ans_text, q_time, ci_interval, conf = res.answer, res.timestamp, res.time_interval, res.confidence
 
         # 3. Team-specific goals
@@ -1573,7 +1572,7 @@ def main():
 
         # 10. General / TQL query engine fallback
         else:
-            res = qe.query(query_input)
+            res = qe.query(active_q)
             ans_text = res.answer
             q_time = res.timestamp
             ci_interval = res.time_interval or [max(0.0, (q_time or 0) - 1.0), (q_time or 0) + 1.0]
