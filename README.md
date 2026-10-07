@@ -383,6 +383,4 @@ All 9 test suites verify:
 
 ---
 
-## License
-
-This project is licensed under the MIT License.
+Copyright @Tempo.
