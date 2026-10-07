@@ -1563,47 +1563,14 @@ def main():
     # Step 7: Technical Deep-Dive Workspace Tabs
     # -----------------------------------------------------------------------
     st.markdown('<div style="height:25px;"></div>', unsafe_allow_html=True)
-    tab_tl, tab_cv, tab_graph, tab_data, tab_json = st.tabs([
+    tab_tl, tab_data = st.tabs([
         "[TAB 1: UNCERTAINTY TIMELINE (95% CI)]",
-        "[TAB 2: COMPUTER VISION & 2D TACTICAL RADAR]",
-        "[TAB 3: CAUSAL NETWORK GRAPH]",
-        "[TAB 4: RAW EVENT TELEMETRY TABLE]",
-        "[TAB 5: PS02 JSON SCHEMA]"
+        "[TAB 2: RAW EVENT TELEMETRY TABLE]"
     ])
 
     with tab_tl:
         st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#ff7a00;font-weight:700;margin-bottom:0.5rem;">[UNCERTAINTY TIMELINE // MULTI-MODAL 95% CONFIDENCE INTERVALS (±0.36s MAE)]</div>', unsafe_allow_html=True)
         st.plotly_chart(plot_timeline_chart(events, duration=v_duration), width="stretch")
-
-    with tab_cv:
-        st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#00e5ff;font-weight:700;margin-bottom:0.5rem;">[2D TACTICAL PITCH RADAR // HOMOGRAPHY-PROJECTED SPATIAL TRACKING]</div>', unsafe_allow_html=True)
-        st.plotly_chart(
-            create_tactical_pitch_figure(
-                event_type="goal",
-                team_a_name=summary.team_a.name,
-                team_b_name=summary.team_b.name,
-                player_name="Scott McTominay",
-                timestamp=171.2
-            ),
-            width="stretch"
-        )
-        st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#ff7a00;font-weight:700;margin:1.25rem 0 0.5rem 0;">[COMPUTER VISION KEYFRAME INFERENCE SAMPLES]</div>', unsafe_allow_html=True)
-        kf_cols = st.columns(3)
-        sample_kfs = [
-            ("outputs/cv_keyframes/manutd_vs_arsenal_2015/cv_keyframe_E007_001712.jpg", "[KEYFRAME: SCOTT MCTOMINAY GOAL (171.2s)]"),
-            ("outputs/cv_keyframes/manutd_vs_arsenal_2015/cv_keyframe_E010_002370.jpg", "[KEYFRAME: P. AUBAMEYANG GOAL (237.0s)]"),
-            ("outputs/cv_keyframes/manutd_vs_arsenal_2015/cv_keyframe_E003_000967.jpg", "[KEYFRAME: BERND LENO SAVE (96.7s)]")
-        ]
-        for idx_k, (k_p, k_title) in enumerate(sample_kfs):
-            with kf_cols[idx_k]:
-                if Path(k_p).exists():
-                    st.image(k_p, caption=k_title, width="stretch")
-                else:
-                    st.caption(k_title)
-
-    with tab_graph:
-        st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#00e676;font-weight:700;margin-bottom:0.5rem;">[CAUSAL NETWORK GRAPH // DIRECTED ACYCLIC TEMPORAL PROPAGATION]</div>', unsafe_allow_html=True)
-        st.plotly_chart(plot_causal_graph(graph), width="stretch")
 
     with tab_data:
         st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#00e5ff;font-weight:700;margin-bottom:0.5rem;">[RAW EVENT TELEMETRY // CALIBRATED TIMESTAMP LOG]</div>', unsafe_allow_html=True)
@@ -1621,10 +1588,6 @@ def main():
                 "[REPLAYS]": e.replay_count
             })
         st.dataframe(table_rows, width="stretch")
-
-    with tab_json:
-        st.markdown('<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;color:#ff7a00;font-weight:700;margin-bottom:0.5rem;">[HACKATHON PS02 JSON SCHEMA // GROUND-TRUTH COMPLIANCE]</div>', unsafe_allow_html=True)
-        st.code(json.dumps([e.to_dict() for e in events[:3]], indent=2), language="json")
 
 
 if __name__ == "__main__":
