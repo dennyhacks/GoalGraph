@@ -1111,27 +1111,6 @@ def plot_causal_graph(graph: nx.DiGraph):
 # Main Application
 # ---------------------------------------------------------------------------
 def main():
-    # Top Workstation Header Toolbar (Matching TopBar.tsx theme from workstation reference)
-    st.markdown("""
-    <div class="workstation-topbar">
-        <div class="topbar-left">
-            <div class="topbar-badge">GG</div>
-            <div class="topbar-titles">
-                <div class="topbar-title-row">
-                    <span class="topbar-title">GoalGraph</span>
-                    <span class="topbar-pill">[WORKSTATION]</span>
-                </div>
-                <div class="topbar-subtitle">Temporal Football Video Understanding & Multi-Modal Causal Engine</div>
-            </div>
-        </div>
-        <div class="topbar-right">
-            <span class="status-pill-green"><span class="pulse-dot"></span>[5/5 CHANNELS SYNCHRONIZED]</span>
-            <span class="status-pill-cyan">[OPENCV + PRE-TRAINED YOLOV8X // ±0.36S CI]</span>
-            <span class="status-pill-orange">[STATUS: ONLINE]</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
     # -----------------------------------------------------------------------
     # Step 1: Dynamic Multi-Match Ingestion & Discovery
     # -----------------------------------------------------------------------
