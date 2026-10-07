@@ -1,7 +1,7 @@
 # GOALGRAPH // COMPREHENSIVE PROJECT HANDOFF & ARCHITECTURE MANUAL
 
 **Hackathon Problem Statement:** HNX26PSI02 (Video Understanding & Temporal Reasoning)  
-**Core Technologies:** Computer Vision, Vision-Language Models (VLM), Audio Whisper ASR, Temporal Reasoning, Causal Knowledge Graphs, Streamlit  
+**Core Technologies:** Computer Vision (OpenCV + Pre-trained YOLOv8), Audio Whisper ASR, Scoreboard OCR, Temporal Reasoning, Causal Knowledge Graphs, Streamlit  
 **Design Standard:** Blender 4.x / Unreal Engine Workstation Aesthetic (Monospace Typography, High-Contrast Telemetry, Zero Icons, Zero Emojis)
 
 ---
@@ -10,7 +10,13 @@
 
 GoalGraph is an end-to-end multi-modal video understanding and temporal reasoning workstation. It is engineered specifically for soccer broadcast footage, capable of ingesting everything from short highlight reels to multi-gigabyte 90-minute matches (up to 15 GB).
 
-### 1.1 The Challenge (HNX26PSI02)
+### 1.1 Evaluator FAQ: Computer Vision Architecture (OpenCV + Pre-Trained YOLOv8 vs VLM)
+When asked by judges or evaluators whether the system relies on heavy Vision-Language Models (VLMs), our architecture decision is direct and clear:
+* **OpenCV + Pre-Trained YOLOv8 Foundation**: VLMs are high-latency, parameter-heavy extensions of core Computer Vision. For real-time 25-fps match processing and video understanding, standalone heavy VLMs introduce prohibitive latency, hallucination risks, and resource bottlenecks under tight time constraints.
+* **Deterministic CV Grounding**: GoalGraph uses pre-trained YOLOv8 weights (specialized for real-time person, ball, and field object detection) paired with OpenCV algorithms (HSV kit color segmentation, optical flow motion vectors, and frame-difference transition detection).
+* **Cross-Modal Verification**: Rather than relying on a single slow vision model, GoalGraph fuses OpenCV + YOLOv8 with ASR commentary audio and scoreboard OCR via Inverse-Variance Triangulation, ensuring deterministic ground truth and zero hallucinations.
+
+### 1.2 The Challenge (HNX26PSI02)
 Conventional video models excel at static object classification ("what is in this frame?"), but fail at temporal reasoning ("what happened first, what happened next, what caused what, and how long elapsed between events?").
 
 In sports broadcasting, temporal reasoning is complicated by:

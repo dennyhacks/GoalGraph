@@ -1,0 +1,48 @@
+{
+  "match_id": "fra_vs_bel_2024",
+  "tournament": "UEFA Nations League",
+  "teams": {
+    "A": {
+      "name": "France",
+      "short": "FRA",
+      "color": "Blue",
+      "color_hex": "#1e40af",
+      "jersey_label": "Blue Kits"
+    },
+    "B": {
+      "name": "Belgium",
+      "short": "BEL",
+      "color": "Red",
+      "color_hex": "#dc2626",
+      "jersey_label": "Red Kits"
+    }
+  },
+  "players": {
+    "P_A_1": {"name": "Guillaume Restes", "team": "A", "number": 1, "pos": "GK"},
+    "P_A_2": {"name": "Kiliann Sildillia", "team": "A", "number": 2, "pos": "DF"},
+    "P_A_4": {"name": "Castello Lukeba", "team": "A", "number": 4, "pos": "DF"},
+    "P_A_6": {"name": "Manu Koné", "team": "A", "number": 6, "pos": "MF"},
+    "P_A_7": {"name": "Michael Olise", "team": "A", "number": 7, "pos": "MF"},
+    "P_A_10": {"name": "Rayan Cherki", "team": "A", "number": 10, "pos": "FW"},
+    "P_A_11": {"name": "Désiré Doué", "team": "A", "number": 11, "pos": "FW"},
+    "P_A_14": {"name": "Eduardo Camavinga", "team": "A", "number": 14, "pos": "MF"},
+    "P_A_20": {"name": "Bradley Barcola", "team": "A", "number": 20, "pos": "FW"},
+    "P_A_40": {"name": "Ousmane Dembélé", "team": "A", "number": 7, "pos": "FW"},
+    "P_A_167": {"name": "Désiré Doué", "team": "A", "number": 11, "pos": "FW"},
+    "P_A_178": {"name": "Rayan Cherki", "team": "A", "number": 10, "pos": "FW"},
+    "P_B_1": {"name": "Maarten Vandevoordt", "team": "B", "number": 1, "pos": "GK"},
+    "P_B_2": {"name": "Hugo Siquet", "team": "B", "number": 2, "pos": "DF"},
+    "P_B_3": {"name": "Zeno Debast", "team": "B", "number": 3, "pos": "DF"},
+    "P_B_4": {"name": "Koni De Winter", "team": "B", "number": 4, "pos": "DF"},
+    "P_B_6": {"name": "Arthur Vermeeren", "team": "B", "number": 6, "pos": "MF"},
+    "P_B_8": {"name": "Arne Engels", "team": "B", "number": 8, "pos": "MF"},
+    "P_B_10": {"name": "Johan Bakayoko", "team": "B", "number": 10, "pos": "FW"},
+    "P_B_11": {"name": "Dodi Lukebakio", "team": "B", "number": 11, "pos": "FW"},
+    "P_B_192": {"name": "Dodi Lukebakio", "team": "B", "number": 11, "pos": "FW"},
+    "P_X_23": {"name": "Guillaume Restes", "team": "A", "number": 1, "pos": "GK"},
+    "P_X_71": {"name": "Eduardo Camavinga", "team": "A", "number": 14, "pos": "MF"},
+    "P_X_73": {"name": "Dodi Lukebakio", "team": "B", "number": 11, "pos": "FW"},
+    "P_X_74": {"name": "Dodi Lukebakio", "team": "B", "number": 11, "pos": "FW"},
+    "P_X_97": {"name": "Désiré Doué", "team": "A", "number": 11, "pos": "FW"}
+  }
+}

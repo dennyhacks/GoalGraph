@@ -12,7 +12,8 @@ Key problems solved:
 - Temporal reasoning: determining what happened, when it occurred, and the causal chain between events.
 - Broadcast replay deduplication: preventing slow-motion replays and camera cutbacks from double-counting goals, saves, or fouls.
 - Multi-sensor calibration: resolving discrepancies between audio reaction lag, scoreboard broadcast latency, and visual detection using Maximum Likelihood Estimation (MLE).
-- Visual-linguistic grounding: verifying player actions, contact points, and card attributions.
+- Computer Vision Grounding: High-efficiency real-time grounding combining pre-trained YOLOv8 detectors with OpenCV optical flow and HSV kit segmentation.
+- Temporal causal graph: Directed event graphs querying relationships, precedents, and consequences.
 
 ---
 

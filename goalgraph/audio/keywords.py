@@ -45,7 +45,7 @@ RULES = [
     ("yellow_card", "shown", r"\byellow card\b|\bbooked\b|\bcaution(ed)?\b|\bin the book\b",
      r"\bsecond yellow\b|\bred card\b", 0.85, 0.5),
     ("goal", "scored", r"\bgoal\b|\bscores?\b|\bscored\b|\bequali[sz]es?\b|\b(are|is) level\b|\bback of the net\b|\bit'?s in\b|\bburies\b|\bslotted away\b|\bfinish into the corner\b|\bfinds the net\b",
-     r"\bon goal\b|\bat goal\b|\bgoal kick\b|\bgoals to\b|\bgoal line\b|\bno goal\b|\bdisallowed\b", 0.90, 0.4),
+     r"\bfind a goal\b|\bsearch of a goal\b|\blooking for a goal\b|\bneed a goal\b|\bchance of a goal\b|\bon goal\b|\bat goal\b|\bgoal kick\b|\bgoals to\b|\bgoal line\b|\bno goal\b|\bdisallowed\b", 0.90, 0.4),
     ("shot_on_target", "saved", r"\bsaves?\b|\bsaved\b|\bsafe from\b|\bshot\b|\bheader\b|\bon target\b|\bstrike\b",
      r"\bshot wide\b|\bover the bar\b|\boff target\b", 0.75, 0.4),
     ("foul", "committed", r"\bfoul\b|\bbrings? (him )?down\b|\bfouled\b|\bfree kick\b|\btrips?\b|\bchallenge\b",

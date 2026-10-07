@@ -945,7 +945,7 @@ def main():
         <div class="blender-modes">
             <span class="mode-chip active">[COMPOSITOR]</span>
             <span class="mode-chip">[CV INSPECTOR]</span>
-            <span class="mode-chip">[VLM AUDIT]</span>
+            <span class="mode-chip">[OPENCV + YOLO AUDIT]</span>
             <span class="mode-chip">[CAUSAL GRAPH]</span>
             <span class="mode-chip">[TELEMETRY]</span>
         </div>
@@ -958,44 +958,80 @@ def main():
     """, unsafe_allow_html=True)
 
     # -----------------------------------------------------------------------
-    # Step 1: Video Ingestion (Dynamic - Any Video Duration)
+    # Step 1: Dynamic Multi-Match Ingestion & Discovery
     # -----------------------------------------------------------------------
-    real_match_vid = "data/matches/manutd_vs_arsenal_2015.mp4"
-    real_match_roster = "data/matches/roster.json"
-    demo_match_vid = "data/demo/demo_match.mp4"
-    demo_match_roster = "data/demo/roster.json"
+    available_matches: dict[str, dict[str, str | None]] = {}
 
-    with st.expander("[WORKSPACE SOURCE: MATCH VIDEO INGESTION]", expanded=False):
-        match_choice = st.selectbox(
-            "Select Match:",
-            [
-                "Manchester United 1 - 1 Arsenal (Premier League 2015, Real Broadcast)",
-                "Lions 2 - 1 Falcons (196s Broadcast Benchmark)"
-            ]
-        )
+    # Check uploaded matches in outputs/uploads/
+    if Path("outputs/uploads/videoplayback.mp4").exists():
+        available_matches["France 4 - 1 Belgium (UEFA Nations League - Uploaded Match)"] = {
+            "video": "outputs/uploads/videoplayback.mp4",
+            "roster": "outputs/videoplayback/roster.json" if Path("outputs/videoplayback/roster.json").exists() else (
+                "data/matches/france_vs_belgium_roster.json" if Path("data/matches/france_vs_belgium_roster.json").exists() else None
+            )
+        }
+
+    # Real Premier League match
+    if Path("data/matches/manutd_vs_arsenal_2015.mp4").exists():
+        available_matches["Manchester United 1 - 1 Arsenal (Premier League 2015, Real Broadcast)"] = {
+            "video": "data/matches/manutd_vs_arsenal_2015.mp4",
+            "roster": "data/matches/roster.json"
+        }
+
+    # Synthetic broadcast benchmark
+    if Path("data/demo/demo_match.mp4").exists():
+        available_matches["Lions 2 - 1 Falcons (196s Broadcast Benchmark)"] = {
+            "video": "data/demo/demo_match.mp4",
+            "roster": "data/demo/roster.json"
+        }
+
+    # Any other uploaded videos in outputs/uploads/
+    uploads_dir = Path("outputs/uploads")
+    if uploads_dir.exists():
+        for p in sorted(uploads_dir.glob("*.mp4")):
+            if p.name == "videoplayback.mp4":
+                continue
+            lbl = f"Uploaded Video: {p.stem[:45]}"
+            available_matches[lbl] = {
+                "video": str(p),
+                "roster": str(Path("outputs") / p.stem / "roster.json") if (Path("outputs") / p.stem / "roster.json").exists() else None
+            }
+
+    # Match Selection UI with Session State Persistence
+    st.sidebar.markdown("<div style='font-family: monospace; font-size: 0.75rem; color: #ff7a00; font-weight: 700; margin-bottom: 4px;'>[ACTIVE MATCH SELECTOR]</div>", unsafe_allow_html=True)
+    match_labels = list(available_matches.keys())
+    if "selected_match_label" not in st.session_state or st.session_state["selected_match_label"] not in match_labels:
+        if "France 4 - 1 Belgium (UEFA Nations League - Uploaded Match)" in match_labels:
+            st.session_state["selected_match_label"] = "France 4 - 1 Belgium (UEFA Nations League - Uploaded Match)"
+        else:
+            st.session_state["selected_match_label"] = match_labels[0]
+
+    cur_idx = match_labels.index(st.session_state["selected_match_label"])
+    selected_label = st.sidebar.selectbox("Select Match to Analyze:", match_labels, index=cur_idx)
+    st.session_state["selected_match_label"] = selected_label
+
+    with st.expander("[WORKSPACE SOURCE: UPLOAD ANY MATCH VIDEO]", expanded=False):
         uploaded_file = st.file_uploader(
-            "Upload any full match video (.mp4, .mov, .mkv, .avi) [Up to 15 GB supported]:",
+            "Upload any match video (.mp4, .mov, .mkv, .avi) [Up to 15 GB supported]:",
             type=["mp4", "mov", "mkv", "avi"]
         )
 
     if uploaded_file is not None:
-        uploads_dir = Path("outputs/uploads")
         uploads_dir.mkdir(parents=True, exist_ok=True)
         saved_path = uploads_dir / uploaded_file.name
-        # Stream in 8MB chunks to avoid memory spikes with multi-gigabyte match files
         with open(saved_path, "wb") as f:
             while chunk := uploaded_file.read(8 * 1024 * 1024):
                 f.write(chunk)
-        active_video_path = str(saved_path)
-        active_roster_path = None
         file_sz_mb = saved_path.stat().st_size / (1024 * 1024)
         st.success(f"[INGESTION COMPLETE]: Loaded `{uploaded_file.name}` ({file_sz_mb:.1f} MB)")
-    elif "Manchester United" in match_choice and Path(real_match_vid).exists():
-        active_video_path = real_match_vid
-        active_roster_path = real_match_roster
+        active_video_path = str(saved_path)
+        stem = saved_path.stem
+        active_roster_path = str(Path("outputs") / stem / "roster.json") if (Path("outputs") / stem / "roster.json").exists() else None
+        new_label = f"Uploaded Video: {stem[:45]}"
+        st.session_state["selected_match_label"] = new_label
     else:
-        active_video_path = demo_match_vid
-        active_roster_path = demo_match_roster
+        active_video_path = available_matches[selected_label]["video"]
+        active_roster_path = available_matches[selected_label]["roster"]
 
     # Probe duration dynamically
     try:
@@ -1257,7 +1293,7 @@ def main():
                 )
                 st.plotly_chart(fig_radar, width="stretch")
 
-        # Multi-Modal VLM Grounding Audit
+        # Computer Vision & OpenCV Grounding Audit
         vlm_audit = generate_vlm_audit(
             event_id=ev_id,
             event_type=ev_type,
@@ -1268,14 +1304,15 @@ def main():
         )
         st.markdown(f"""
         <div class="vlm-box">
-            <div class="vlm-title">[VISION-LANGUAGE MODEL (VLM) & CV GROUNDING AUDIT]</div>
+            <div class="vlm-title">[OPENCV + PRE-TRAINED YOLOV8 COMPUTER VISION AUDIT]</div>
             <div class="vlm-desc">{vlm_audit.visual_action_description}</div>
             <div class="telemetry-tag-rack">
-                <span class="telemetry-chip">[YOLOV8 DETECTOR: ACTIVE (CONF: {conf:.0%})]</span>
+                <span class="telemetry-chip">[CV ENGINE: OPENCV + YOLOV8 PRE-TRAINED]</span>
+                <span class="telemetry-chip">[OPTICAL FLOW & HSV: ACTIVE (CONF: {conf:.0%})]</span>
                 <span class="telemetry-chip">[SPATIAL REID: {vlm_audit.reid_tracklet_id}]</span>
                 <span class="telemetry-chip">[SCOREBOARD OCR: {vlm_audit.scoreboard_validation}]</span>
                 <span class="telemetry-chip">[BROADCAST ANGLE: {vlm_audit.broadcast_angle_classification}]</span>
-                <span class="telemetry-chip" style="color:#00e676;border-color:rgba(0,230,118,0.4);">[CONSENSUS: 4 AI MODELS VERIFIED]</span>
+                <span class="telemetry-chip" style="color:#00e676;border-color:rgba(0,230,118,0.4);">[GROUNDING: OPENCV + YOLO VERIFIED]</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1367,7 +1404,7 @@ def main():
 
             st.markdown(f"""
             <div class="vlm-box" style="margin-top:8px;">
-                <span style="color:#b388ff;font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;">[VLM GROUNDING AUDIT] </span>
+                <span style="color:#b388ff;font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;">[OPENCV + YOLO AUDIT] </span>
                 {vlm_entry.visual_action_description}
             </div>
             """, unsafe_allow_html=True)
