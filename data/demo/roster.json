@@ -1,0 +1,78 @@
+{
+  "teams": {
+    "A": {
+      "name": "Lions",
+      "code": "LIO",
+      "color": "Red",
+      "color_hex": "#e53935",
+      "aliases": [
+        "lions",
+        "home side",
+        "home",
+        "reds"
+      ]
+    },
+    "B": {
+      "name": "Falcons",
+      "code": "FAL",
+      "color": "Blue",
+      "color_hex": "#1e88e5",
+      "aliases": [
+        "falcons",
+        "away side",
+        "visitors",
+        "blues"
+      ]
+    }
+  },
+  "players": {
+    "A#9": {
+      "name": "Marcus Vance",
+      "team": "A",
+      "number": 9,
+      "position": "Forward"
+    },
+    "A#10": {
+      "name": "Leo Silva",
+      "team": "A",
+      "number": 10,
+      "position": "Midfielder"
+    },
+    "A#7": {
+      "name": "Carlos Diaz",
+      "team": "A",
+      "number": 7,
+      "position": "Winger"
+    },
+    "A#1": {
+      "name": "Lucas Romero",
+      "team": "A",
+      "number": 1,
+      "position": "Goalkeeper"
+    },
+    "B#4": {
+      "name": "David Ruiz",
+      "team": "B",
+      "number": 4,
+      "position": "Defender"
+    },
+    "B#11": {
+      "name": "Mateo Rossi",
+      "team": "B",
+      "number": 11,
+      "position": "Forward"
+    },
+    "B#14": {
+      "name": "Julian Brand",
+      "team": "B",
+      "number": 14,
+      "position": "Midfielder"
+    },
+    "B#1": {
+      "name": "Samir Handan",
+      "team": "B",
+      "number": 1,
+      "position": "Goalkeeper"
+    }
+  }
+}

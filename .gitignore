@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build and distribution
+*.egg-info/
+build/
+dist/
+*.egg
+
+# Output artifacts, generated caches, and temporary debug files
+outputs/
+.tempmediaStorage/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Large external datasets and binary media (generate via scripts/make_demo_video.py)
+data/soccernet/
+*.zip
+*.tar.gz
+*.mp4
+*.pt

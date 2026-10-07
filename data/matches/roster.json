@@ -1,0 +1,123 @@
+{
+  "teams": {
+    "A": {
+      "name": "Manchester United",
+      "code": "MUN",
+      "color": "Red",
+      "color_hex": "#da291c",
+      "aliases": [
+        "manchester united",
+        "man united",
+        "united",
+        "red devils",
+        "home side",
+        "home"
+      ]
+    },
+    "B": {
+      "name": "Arsenal",
+      "code": "ARS",
+      "color": "Yellow/Blue",
+      "color_hex": "#fdb913",
+      "aliases": [
+        "arsenal",
+        "gunners",
+        "away side",
+        "visitors"
+      ]
+    }
+  },
+  "players": {
+    "A#39": {
+      "name": "Scott McTominay",
+      "team": "A",
+      "number": 39,
+      "position": "Midfielder",
+      "aliases": ["mctominay", "scott mctominay", "mctominec", "scott mctominec"]
+    },
+    "A#10": {
+      "name": "Marcus Rashford",
+      "team": "A",
+      "number": 10,
+      "position": "Forward",
+      "aliases": ["rashford", "marcus rashford"]
+    },
+    "A#15": {
+      "name": "Andreas Pereira",
+      "team": "A",
+      "number": 15,
+      "position": "Midfielder",
+      "aliases": ["pereira", "andreas pereira"]
+    },
+    "A#1": {
+      "name": "David de Gea",
+      "team": "A",
+      "number": 1,
+      "position": "Goalkeeper",
+      "aliases": ["de gea", "david de gea", "tather de gea"]
+    },
+    "A#5": {
+      "name": "Harry Maguire",
+      "team": "A",
+      "number": 5,
+      "position": "Defender",
+      "aliases": ["maguire", "harry maguire"]
+    },
+    "A#6": {
+      "name": "Paul Pogba",
+      "team": "A",
+      "number": 6,
+      "position": "Midfielder",
+      "aliases": ["pogba", "paul pogba"]
+    },
+    "A#14": {
+      "name": "Jesse Lingard",
+      "team": "A",
+      "number": 14,
+      "position": "Midfielder",
+      "aliases": ["lingard", "jesse lingard"]
+    },
+    "B#14": {
+      "name": "Pierre-Emerick Aubameyang",
+      "team": "B",
+      "number": 14,
+      "position": "Forward",
+      "aliases": ["aubameyang", "pierre-emerick aubameyang", "abamiang", "abhamiang", "pierre -emerick abamiang"]
+    },
+    "B#77": {
+      "name": "Bukayo Saka",
+      "team": "B",
+      "number": 77,
+      "position": "Winger",
+      "aliases": ["saka", "bukayo saka"]
+    },
+    "B#1": {
+      "name": "Bernd Leno",
+      "team": "B",
+      "number": 1,
+      "position": "Goalkeeper",
+      "aliases": ["leno", "bernd leno", "bert leno"]
+    },
+    "B#19": {
+      "name": "Nicolas Pépé",
+      "team": "B",
+      "number": 19,
+      "position": "Winger",
+      "aliases": ["pepe", "pépé", "nicolas pepe"]
+    },
+    "B#11": {
+      "name": "Lucas Torreira",
+      "team": "B",
+      "number": 11,
+      "position": "Midfielder",
+      "aliases": ["torreira", "lucas torreira", "terreira"]
+    },
+    "B#29": {
+      "name": "Mattéo Guendouzi",
+      "team": "B",
+      "number": 29,
+      "position": "Midfielder",
+      "aliases": ["guendouzi", "guendouza", "matteo guendouzi"]
+    }
+  }
+}

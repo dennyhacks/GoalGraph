@@ -1,0 +1,524 @@
+{
+  "video": "demo_match.mp4",
+  "fps": 25,
+  "duration": 196.0,
+  "teams": {
+    "A": "Lions",
+    "B": "Falcons"
+  },
+  "events": [
+    {
+      "event_id": "GT01",
+      "type": "kickoff",
+      "t": 1.0,
+      "team": null,
+      "player": null,
+      "half": 1,
+      "match_clock_s": 0.0
+    },
+    {
+      "event_id": "GT02",
+      "type": "foul",
+      "t": 18.0,
+      "team": "B",
+      "player": "B#4",
+      "half": 1,
+      "match_clock_s": 498.0
+    },
+    {
+      "event_id": "GT03",
+      "type": "yellow_card",
+      "t": 23.0,
+      "team": "B",
+      "player": "B#4",
+      "half": 1,
+      "match_clock_s": 503.0
+    },
+    {
+      "event_id": "GT04",
+      "type": "corner",
+      "t": 37.0,
+      "team": "A",
+      "player": "A#7",
+      "half": 1,
+      "match_clock_s": 1309.0
+    },
+    {
+      "event_id": "GT05",
+      "type": "shot_on_target",
+      "t": 39.0,
+      "team": "A",
+      "player": "A#9",
+      "half": 1,
+      "match_clock_s": 1311.0
+    },
+    {
+      "event_id": "GT06",
+      "type": "goal",
+      "t": 39.8,
+      "team": "A",
+      "player": "A#9",
+      "half": 1,
+      "match_clock_s": 1311.8
+    },
+    {
+      "event_id": "GT07",
+      "type": "shot_on_target",
+      "t": 66.0,
+      "team": "A",
+      "player": "A#10",
+      "half": 1,
+      "match_clock_s": 2001.0
+    },
+    {
+      "event_id": "GT08",
+      "type": "half_time",
+      "t": 84.0,
+      "team": null,
+      "player": null,
+      "half": 1,
+      "match_clock_s": 2700.0
+    },
+    {
+      "event_id": "GT09",
+      "type": "kickoff",
+      "t": 93.0,
+      "team": "B",
+      "player": null,
+      "half": 2,
+      "match_clock_s": 2700.0
+    },
+    {
+      "event_id": "GT10",
+      "type": "substitution",
+      "t": 105.0,
+      "team": "B",
+      "player": "B#14",
+      "half": 2,
+      "match_clock_s": 3153.0
+    },
+    {
+      "event_id": "GT11",
+      "type": "corner",
+      "t": 117.0,
+      "team": "B",
+      "player": "B#14",
+      "half": 2,
+      "match_clock_s": 3165.0
+    },
+    {
+      "event_id": "GT12",
+      "type": "shot_on_target",
+      "t": 130.0,
+      "team": "B",
+      "player": "B#11",
+      "half": 2,
+      "match_clock_s": 3671.0
+    },
+    {
+      "event_id": "GT13",
+      "type": "goal",
+      "t": 130.6,
+      "team": "B",
+      "player": "B#11",
+      "half": 2,
+      "match_clock_s": 3671.6
+    },
+    {
+      "event_id": "GT14",
+      "type": "corner",
+      "t": 150.0,
+      "team": "A",
+      "player": "A#7",
+      "half": 2,
+      "match_clock_s": 4464.0
+    },
+    {
+      "event_id": "GT15",
+      "type": "shot_on_target",
+      "t": 152.0,
+      "team": "A",
+      "player": "A#9",
+      "half": 2,
+      "match_clock_s": 4466.0
+    },
+    {
+      "event_id": "GT16",
+      "type": "shot_on_target",
+      "t": 160.4,
+      "team": "A",
+      "player": "A#9",
+      "half": 2,
+      "match_clock_s": 4686.4
+    },
+    {
+      "event_id": "GT17",
+      "type": "goal",
+      "t": 161.0,
+      "team": "A",
+      "player": "A#9",
+      "half": 2,
+      "match_clock_s": 4687.0
+    },
+    {
+      "event_id": "GT18",
+      "type": "foul",
+      "t": 172.0,
+      "team": "B",
+      "player": "B#4",
+      "half": 2,
+      "match_clock_s": 5204.0
+    },
+    {
+      "event_id": "GT19",
+      "type": "red_card",
+      "t": 177.0,
+      "team": "B",
+      "player": "B#4",
+      "half": 2,
+      "match_clock_s": 5209.0
+    },
+    {
+      "event_id": "GT20",
+      "type": "full_time",
+      "t": 190.0,
+      "team": null,
+      "player": null,
+      "half": 2,
+      "match_clock_s": 5591.0
+    }
+  ],
+  "replays": [
+    {
+      "video": [
+        48.6,
+        59.4
+      ],
+      "live": [
+        36.5,
+        41.9
+      ],
+      "speed": 0.5
+    },
+    {
+      "video": [
+        138.6,
+        145.4
+      ],
+      "live": [
+        128.9,
+        132.3
+      ],
+      "speed": 0.5
+    }
+  ],
+  "cuts": [
+    {
+      "t": 10.0,
+      "from": "kickoff_h1:wide",
+      "to": "foul_yellow:wide"
+    },
+    {
+      "t": 21.8,
+      "from": "foul_yellow:wide",
+      "to": "foul_yellow:close"
+    },
+    {
+      "t": 28.0,
+      "from": "foul_yellow:close",
+      "to": "corner_goal:wide"
+    },
+    {
+      "t": 34.0,
+      "from": "corner_goal:wide",
+      "to": "corner_goal:mid"
+    },
+    {
+      "t": 44.0,
+      "from": "corner_goal:mid",
+      "to": "corner_goal:close"
+    },
+    {
+      "t": 48.0,
+      "from": "corner_goal:close",
+      "to": "replay"
+    },
+    {
+      "t": 60.0,
+      "from": "replay",
+      "to": "shot_save:wide"
+    },
+    {
+      "t": 68.0,
+      "from": "shot_save:wide",
+      "to": "shot_save:close"
+    },
+    {
+      "t": 74.0,
+      "from": "shot_save:close",
+      "to": "shot_save:wide"
+    },
+    {
+      "t": 80.0,
+      "from": "shot_save:wide",
+      "to": "half_time:wide"
+    },
+    {
+      "t": 89.0,
+      "from": "half_time:wide",
+      "to": "graphic"
+    },
+    {
+      "t": 92.0,
+      "from": "graphic",
+      "to": "kickoff_h2:wide"
+    },
+    {
+      "t": 102.0,
+      "from": "kickoff_h2:wide",
+      "to": "sub_corner:close"
+    },
+    {
+      "t": 110.0,
+      "from": "sub_corner:close",
+      "to": "sub_corner:wide"
+    },
+    {
+      "t": 124.0,
+      "from": "sub_corner:wide",
+      "to": "goal_b:wide"
+    },
+    {
+      "t": 131.52,
+      "from": "goal_b:wide",
+      "to": "goal_b:close"
+    },
+    {
+      "t": 138.0,
+      "from": "goal_b:close",
+      "to": "replay"
+    },
+    {
+      "t": 146.0,
+      "from": "replay",
+      "to": "corner_save:mid"
+    },
+    {
+      "t": 156.0,
+      "from": "corner_save:mid",
+      "to": "goal_a2:wide"
+    },
+    {
+      "t": 163.0,
+      "from": "goal_a2:wide",
+      "to": "goal_a2:close"
+    },
+    {
+      "t": 168.0,
+      "from": "goal_a2:close",
+      "to": "foul_red:wide"
+    },
+    {
+      "t": 176.0,
+      "from": "foul_red:wide",
+      "to": "foul_red:close"
+    },
+    {
+      "t": 184.0,
+      "from": "foul_red:close",
+      "to": "full_time:wide"
+    }
+  ],
+  "graphics": [
+    [
+      89,
+      92,
+      "HALF TIME"
+    ]
+  ],
+  "occlusions": [
+    {
+      "player": "A#9",
+      "occluder": "B#5",
+      "interval": [
+        35.4,
+        36.3
+      ]
+    },
+    {
+      "player": "A#9",
+      "out_of_frame": true,
+      "interval": [
+        41.5,
+        44.0
+      ]
+    }
+  ],
+  "commentary": [
+    {
+      "t": 1.3,
+      "text": "And we're underway! The referee blows for kick off."
+    },
+    {
+      "t": 5.8,
+      "text": "The Lions knocking it around at the back."
+    },
+    {
+      "t": 18.5,
+      "text": "Oh, that's a foul! Number four brings him down."
+    },
+    {
+      "t": 23.4,
+      "text": "And the referee shows a yellow card to number four."
+    },
+    {
+      "t": 28.6,
+      "text": "The Lions attacking down the right."
+    },
+    {
+      "t": 31.4,
+      "text": "Deflected, and that's out for a corner."
+    },
+    {
+      "t": 36.2,
+      "text": "Number seven swings in the corner."
+    },
+    {
+      "t": 40.1,
+      "text": "Goal! Number nine scores for the Lions!"
+    },
+    {
+      "t": 44.2,
+      "text": "What a moment for the home side."
+    },
+    {
+      "t": 51.0,
+      "text": "Let's see that goal again. What a header from number nine."
+    },
+    {
+      "t": 62.0,
+      "text": "The Lions pressing forward."
+    },
+    {
+      "t": 66.3,
+      "text": "Shot from number ten! Great save by the keeper!"
+    },
+    {
+      "t": 76.0,
+      "text": "The Falcons trying to build from the back."
+    },
+    {
+      "t": 84.3,
+      "text": "And there's the whistle for half time."
+    },
+    {
+      "t": 93.4,
+      "text": "The second half is underway."
+    },
+    {
+      "t": 97.0,
+      "text": "The Falcons need a response here."
+    },
+    {
+      "t": 105.0,
+      "text": "A substitution for the Falcons. Number fourteen comes on for number seven."
+    },
+    {
+      "t": 113.2,
+      "text": "Blocked, and it's out for a corner to the Falcons."
+    },
+    {
+      "t": 116.6,
+      "text": "The corner comes in, and it's cleared."
+    },
+    {
+      "t": 126.0,
+      "text": "The Falcons break forward."
+    },
+    {
+      "t": 130.8,
+      "text": "Goal! Number eleven equalises for the Falcons!"
+    },
+    {
+      "t": 139.5,
+      "text": "Another look at the goal. Clinical finish from number eleven."
+    },
+    {
+      "t": 146.8,
+      "text": "Corner for the Lions. Number seven to take it."
+    },
+    {
+      "t": 152.4,
+      "text": "Header from number nine, but the keeper saves!"
+    },
+    {
+      "t": 157.0,
+      "text": "Number nine is through on goal!"
+    },
+    {
+      "t": 161.3,
+      "text": "Goal! Number nine again! He has scored twice!"
+    },
+    {
+      "t": 166.0,
+      "text": "The Lions lead two one."
+    },
+    {
+      "t": 172.4,
+      "text": "Another foul by number four!"
+    },
+    {
+      "t": 177.3,
+      "text": "That's a second yellow, and it's a red card! Number four is sent off!"
+    },
+    {
+      "t": 185.5,
+      "text": "We're deep into stoppage time."
+    },
+    {
+      "t": 190.4,
+      "text": "And that's full time! The Lions win it, two goals to one."
+    }
+  ],
+  "whistles": [
+    {
+      "t": 1.0,
+      "dur": 0.5
+    },
+    {
+      "t": 18.25,
+      "dur": 0.35
+    },
+    {
+      "t": 84.0,
+      "dur": 1.2
+    },
+    {
+      "t": 93.0,
+      "dur": 0.5
+    },
+    {
+      "t": 172.25,
+      "dur": 0.35
+    },
+    {
+      "t": 190.0,
+      "dur": 1.6
+    }
+  ],
+  "score_changes": [
+    {
+      "t": 41.5,
+      "score": "1-0"
+    },
+    {
+      "t": 132.2,
+      "score": "1-1"
+    },
+    {
+      "t": 162.8,
+      "score": "2-1"
+    }
+  ],
+  "has_commentary_audio": true
+}

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "goalgraph"
+version = "0.1.0"
+description = "Provenance-Aware Temporal Event Graph for Football (Soccer)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "opencv-python",
+    "numpy",
+    "scipy",
+    "faster-whisper",
+    "networkx",
+    "lark",
+    "streamlit",
+    "plotly",
+    "rapidfuzz",
+]
+
+[tool.setuptools.packages.find]
+include = ["goalgraph*"]
