@@ -747,6 +747,29 @@ def load_video_analysis(video_path: str, roster_path: str | None = None):
     return events, graph, qe
 
 
+def compute_score_at_timestamp(summary: MatchSummary, timestamp_s: float) -> tuple[int, int, str]:
+    """Computes (score_a, score_b, lead_description) at a given video timestamp in seconds."""
+    if hasattr(summary, "get_score_at_timestamp"):
+        try:
+            return summary.get_score_at_timestamp(timestamp_s)
+        except Exception:
+            pass
+    curr_a, curr_b = 0, 0
+    lead_desc = "MATCH TIED (0 - 0)"
+    for g in getattr(summary, "goals", []):
+        g_sec = float(g.get("timestamp") or g.get("video_seconds", 0.0))
+        if timestamp_s >= g_sec:
+            curr_a = int(g.get("score_a", curr_a))
+            curr_b = int(g.get("score_b", curr_b))
+            if curr_a > curr_b:
+                lead_desc = f"{summary.team_a.name.upper()} LEAD ({curr_a} - {curr_b})"
+            elif curr_b > curr_a:
+                lead_desc = f"{summary.team_b.name.upper()} LEAD ({curr_a} - {curr_b})"
+            else:
+                lead_desc = f"LEVEL AT {curr_a} - {curr_b}"
+    return curr_a, curr_b, lead_desc
+
+
 def get_event_clip(video_path: str, t: float, pre_s: float = 30.0, post_s: float = 30.0) -> tuple[str, float]:
     """Generates or retrieves a crisp 60s focused clip [-pre_s, +post_s] centered around t."""
     v_p = Path(video_path)
@@ -1132,7 +1155,7 @@ def main():
 
     # Compute progressive score at active playhead timestamp
     active_playhead = float(st.session_state["playhead_sec"])
-    cur_score_a, cur_score_b, lead_desc = summary.get_score_at_timestamp(active_playhead)
+    cur_score_a, cur_score_b, lead_desc = compute_score_at_timestamp(summary, active_playhead)
 
     # Detailed contextual narrative for this specific playhead timestamp
     first_goal_t = float(summary.goals[0].get("timestamp", 243.0)) if summary.goals else 243.0
